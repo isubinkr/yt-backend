@@ -128,12 +128,12 @@ const publishAVideo = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Error uploading video and thumbnail");
 
   const uploadedVideo = await Video.create({
-    videoFile: video?.url,
-    thumbnail: thumbnail?.url,
+    videoFile: video.url,
+    thumbnail: thumbnail.url,
     title,
     description,
     duration: video.duration,
-    owner: req.user?._id,
+    owner: req.user._id,
   });
 
   return res
@@ -308,7 +308,7 @@ const updateVideo = asyncHandler(async (req, res) => {
       $set: {
         title,
         description,
-        thumbnail: newThumbnail?.url,
+        thumbnail: newThumbnail.url,
       },
     },
     { new: true }
