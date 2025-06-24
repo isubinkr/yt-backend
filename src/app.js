@@ -5,8 +5,6 @@ import morgan from "morgan";
 
 const app = express();
 
-console.log(process.env.CORS_ORIGIN);
-
 // CORS configuration
 app.use(
   cors({
