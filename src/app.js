@@ -1,8 +1,11 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import morgan from "morgan";
 
 const app = express();
+
+console.log(process.env.CORS_ORIGIN);
 
 // CORS configuration
 app.use(
@@ -20,6 +23,7 @@ app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 app.use(express.static("public"));
 // config for accesing user's browser cookies (perform CRUD operation on it)
 app.use(cookieParser());
+app.use(morgan("dev"));
 
 // routes
 import userRouter from "./routes/user.routes.js";
@@ -42,5 +46,17 @@ app.use("/api/v1/comments", commentRouter);
 app.use("/api/v1/likes", likeRouter);
 app.use("/api/v1/playlist", playlistRouter);
 app.use("/api/v1/dashboard", dashboardRouter);
+
+app.use((err, req, res, next) => {
+  const statusCode = err.statusCode || 500;
+
+  return res.status(statusCode).json({
+    statusCode: statusCode,
+    error: err.message || "Internal Server Error",
+    errors: err.errors || [],
+    stack: process.env.NODE_ENV === "development" ? err.stack : undefined,
+    success: false,
+  });
+});
 
 export { app };

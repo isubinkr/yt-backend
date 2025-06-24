@@ -40,7 +40,7 @@ const getVideoComments = asyncHandler(async (req, res) => {
     },
     {
       $addFields: {
-        likescount: {
+        likesCount: {
           $size: "$likes",
         },
         owner: {
@@ -69,7 +69,7 @@ const getVideoComments = asyncHandler(async (req, res) => {
           avatar: 1,
         },
         createdAt: 1,
-        likescount: 1,
+        likesCount: 1,
         isLiked: 1,
       },
     },

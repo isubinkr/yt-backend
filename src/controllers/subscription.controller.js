@@ -121,31 +121,49 @@ const getSubscribedChannels = asyncHandler(async (req, res) => {
         from: "users",
         localField: "channel",
         foreignField: "_id",
-        as: "subscribedChannels",
+        as: "subscribedChannel",
         pipeline: [
           {
-            $project: {
-              _id: 1,
-              username: 1,
-              fullName: 1,
-              avatar: 1,
+            $lookup: {
+              from: "videos",
+              localField: "_id",
+              foreignField: "owner",
+              as: "videos",
+            },
+          },
+          {
+            $addFields: {
+              latestVideo: {
+                $last: "$videos",
+              },
             },
           },
         ],
       },
     },
     {
-      $group: {
-        _id: null,
-        subscribedChannels: { $push: "$subscribedChannels" },
-        totalSubscribedChannels: { $sum: 1 },
-      },
+      $unwind: "$subscribedChannel",
     },
     {
       $project: {
         _id: 0,
-        subscribedChannels: 1,
-        totalSubscribedChannels: 1,
+        subscribedChannel: {
+          _id: 1,
+          username: 1,
+          fullName: 1,
+          avatar: 1,
+          latestVideo: {
+            _id: 1,
+            videoFile: 1,
+            thumbnail: 1,
+            owner: 1,
+            title: 1,
+            description: 1,
+            duration: 1,
+            createdAt: 1,
+            views: 1,
+          },
+        },
       },
     },
   ]);
@@ -155,7 +173,7 @@ const getSubscribedChannels = asyncHandler(async (req, res) => {
     .json(
       new ApiResponse(
         200,
-        subscribedChannels[0] || [],
+        subscribedChannels,
         "Subscribed channels fetched successfully"
       )
     );

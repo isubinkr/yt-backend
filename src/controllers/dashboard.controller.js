@@ -81,7 +81,7 @@ const getChannelStats = asyncHandler(async (req, res) => {
   const channelStats = {
     totalSubscribers: subscribersStats[0]?.totalSubscribers || 0,
     totalVideos: videosStats[0]?.totalVideos || 0,
-    totalView: videosStats[0]?.totalViews || 0,
+    totalViews: videosStats[0]?.totalViews || 0,
     totalLikes: videosStats[0]?.totalLikes || 0,
     totalComments: videosStats[0]?.totalComments || 0,
   };
@@ -103,21 +103,42 @@ const getChannelVideos = asyncHandler(async (req, res) => {
       },
     },
     {
-      $project: {
-        videoFile: 1,
-        thumbnail: 1,
-        title: 1,
-        description: 1,
-        duration: 1,
-        views: 1,
-        isPublished: 1,
-        createdAt: 1,
-        updatedAt: 1,
+      $lookup: {
+        from: "likes",
+        localField: "_id",
+        foreignField: "video",
+        as: "likes",
+      },
+    },
+    {
+      $addFields: {
+        createdAt: {
+          $dateToParts: { date: "$createdAt" },
+        },
+        likesCount: {
+          $size: "$likes",
+        },
       },
     },
     {
       $sort: {
         createdAt: -1,
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        videoFile: 1,
+        thumbnail: 1,
+        title: 1,
+        description: 1,
+        createdAt: {
+          year: 1,
+          month: 1,
+          day: 1,
+        },
+        isPublished: 1,
+        likesCount: 1,
       },
     },
   ]);

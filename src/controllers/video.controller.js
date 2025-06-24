@@ -23,7 +23,7 @@ const getAllVideos = asyncHandler(async (req, res) => {
         text: {
           query: query,
           path: ["title", "description"],
-          fuzzy: { maxEdits: 1 },
+          fuzzy: { maxEdits: 2, prefixLength: 1 },
         },
       },
     });
@@ -395,6 +395,7 @@ const deleteVideo = asyncHandler(async (req, res) => {
 
 const togglePublishStatus = asyncHandler(async (req, res) => {
   const { videoId } = req.params;
+
   if (!isValidObjectId(videoId)) throw new ApiError(400, "Invalid video ID");
 
   const uploadedVideo = await Video.findById(videoId);
